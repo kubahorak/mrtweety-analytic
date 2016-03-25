@@ -1,0 +1,6 @@
+MrTweety Analytic
+=================
+
+Analyses tweets.
+
+(c) 2016 Jakub Horák
