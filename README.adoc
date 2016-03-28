@@ -13,12 +13,19 @@ Consumer
 
 TODO
 
+Start Zookeeper:
+
+    bin/zookeeper-server-start.sh config/zookeeper.properties
+
+Start Kafka:
+
+    bin/kafka-server-start.sh config/server.properties 
 
 Console output of messages passing through Kafka:
 
     bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic tweet
 
-Test producer for Kafka messages:
+Test console producer of Kafka messages:
 
     bin/kafka-console-producer.sh --broker-list localhost:9092 --topic tweet
 
