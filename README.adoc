@@ -3,6 +3,14 @@ MrTweety Analytic
 
 Analyses tweets.
 
+Producer
+--------
+
+Module takes tweets from the Twitter Streaming API and publishes them to the Kafka messaging system.
+
+Consumer
+--------
+
 TODO
 
 (c) 2016 Jakub Horák

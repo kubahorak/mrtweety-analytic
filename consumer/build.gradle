@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+
+mainClassName = "cz.zee.mrtweety.analytic.consumer.KafkaConsumer"
+
+dependencies {
+
+    compile "org.apache.kafka:kafka_2.11:$kafkaVersion"
+
+    testCompile "junit:junit:$junitVersion"
+}
