@@ -53,7 +53,7 @@ public class KafkaProducer {
 
         client.connect();
 
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < 100; ++i) {
             KeyedMessage<String, String> message = null;
             try {
                 message = new KeyedMessage<>(KAFKA_TOPIC_TWEET, queue.take());

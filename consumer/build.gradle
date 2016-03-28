@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "1.2.3"
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
 
@@ -7,7 +11,8 @@ mainClassName = "cz.zee.mrtweety.analytic.consumer.KafkaConsumer"
 
 dependencies {
 
-    compile "org.apache.kafka:kafka_2.11:$kafkaVersion"
+    compile "org.apache.spark:spark-streaming_2.10:1.6.1"
+    compile "org.apache.spark:spark-streaming-kafka_2.10:1.6.1"
 
     testCompile "junit:junit:$junitVersion"
 }
