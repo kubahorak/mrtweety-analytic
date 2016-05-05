@@ -13,6 +13,7 @@ dependencies {
 
     compile "org.apache.spark:spark-streaming_2.10:1.6.1"
     compile "org.apache.spark:spark-streaming-kafka_2.10:1.6.1"
+    compile "org.json:json:20160212"
 
     testCompile "junit:junit:$junitVersion"
 }

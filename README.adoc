@@ -29,9 +29,13 @@ Test console producer of Kafka messages:
 
     bin/kafka-console-producer.sh --broker-list localhost:9092 --topic tweet
 
+Build consumer:
+   
+    ./gradlew :consumer:shadowJar
+
 Submit Spark app for execution:
 
-    ./spark-submit --class "cz.zee.mrtweety.analytic.consumer.KafkaConsumer" --master local[4] build/libs/consumer-all.jar 
+    spark-submit --class "cz.zee.mrtweety.analytic.consumer.KafkaConsumer" --master local[4] build/libs/consumer-all.jar 
 
 TODO
 
