@@ -28,7 +28,7 @@ public class KafkaConsumer implements Serializable {
     }
 
     private void start() {
-        SparkConf conf = new SparkConf().setAppName("MrTweety Analytic");
+        SparkConf conf = new SparkConf().setAppName("MrTweety Analytic").setMaster("local[*]");
 
         // setup processing with batch interval
         JavaStreamingContext streamingContext = new JavaStreamingContext(conf, Durations.seconds(10));
