@@ -11,6 +11,8 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.twitter.TwitterUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import twitter4j.Status;
 
@@ -28,7 +30,11 @@ import java.util.regex.Pattern;
  */
 public class Application implements Serializable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+
     private static final Pattern SPACE = Pattern.compile(" ");
+
+    private File resultFile;
 
     public static void main(String[] args) {
         new Application().start();
@@ -47,6 +53,11 @@ public class Application implements Serializable {
         System.setProperty("twitter4j.oauth.consumerSecret", twitterProperties.getProperty("consumerSecret"));
         System.setProperty("twitter4j.oauth.accessToken", twitterProperties.getProperty("accessToken"));
         System.setProperty("twitter4j.oauth.accessTokenSecret", twitterProperties.getProperty("accessTokenSecret"));
+
+        // initialize the result file
+        String resultFilename = System.getenv("RESULT_FILENAME");
+        resultFile = new File(resultFilename != null ? resultFilename : "analytic.json");
+        LOG.info("Initialized result file at {}", resultFilename);
 
         JavaReceiverInputDStream<Status> statuses = TwitterUtils.createStream(streamingContext);
 
@@ -71,12 +82,10 @@ public class Application implements Serializable {
     }
 
     /**
-     * Saves a list of top hash tags as a JSON into a file.
+     * Saves a list of top hash tags as a JSON into a resultFile.
      * @param topHashtags list of tuples where key is count and value is the hashtag
      */
     private void save(List<Tuple2<Integer, String>> topHashtags) {
-
-        File file = new File("out/analytic.json");
 
         JSONArray rootArray = new JSONArray();
         topHashtags.forEach(tuple -> {
@@ -88,7 +97,7 @@ public class Application implements Serializable {
         });
 
         try {
-            FileUtils.write(file, rootArray.toString());
+            FileUtils.write(resultFile, rootArray.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
