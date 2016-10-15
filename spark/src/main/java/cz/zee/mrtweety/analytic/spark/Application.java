@@ -87,17 +87,20 @@ public class Application implements Serializable {
      */
     private void save(List<Tuple2<Integer, String>> topHashtags) {
 
-        JSONArray rootArray = new JSONArray();
+        JSONObject rootObject = new JSONObject();
+        JSONArray items = new JSONArray();
+        rootObject.put("items", items);
+
         topHashtags.forEach(tuple -> {
             JSONObject stat = new JSONObject();
             stat.put("hashtag", tuple._2());
             stat.put("count", tuple._1());
 
-            rootArray.put(stat);
+            items.put(stat);
         });
 
         try {
-            FileUtils.write(resultFile, rootArray.toString());
+            FileUtils.write(resultFile, rootObject.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
