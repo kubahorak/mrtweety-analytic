@@ -1,4 +1,3 @@
 rootProject.name = 'mrtweety-analytic'
-include 'producer'
-include 'consumer'
+include 'spark'
 
