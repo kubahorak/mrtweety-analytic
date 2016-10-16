@@ -19,6 +19,9 @@ To use the Spark module alone, build it like so:
 
 Optionally you can change the default path of the result JSON file by setting the environment variable
 `RESULT_FILENAME`.
+
+    export RESULT_FILENAME=/tmp/analytic.json
+
 Finally submit the "fat jar" to your Spark for execution:
 
     spark-submit --class "cz.zee.mrtweety.analytic.spark.Application" --master local[4] build/libs/spark-all.jar 
