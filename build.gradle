@@ -1,13 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.3'
-    }
-}
-
-
 group 'cz.zee.mrtweety'
 version '0.2-SNAPSHOT'
 
@@ -20,20 +10,3 @@ subprojects {
 
 }
 
-
-apply plugin: 'com.bmuschko.docker-remote-api'
-
-
-import com.bmuschko.gradle.docker.tasks.image.Dockerfile
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-
-
-docker {
-    url = 'http://localhost:4243'
-}
-
-task buildImage(type: DockerBuildImage) {
-    dependsOn(':spark:shadowJar')
-    tag = 'mrtweety-analytic'
-    inputDir = projectDir
-}
