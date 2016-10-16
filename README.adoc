@@ -1,6 +1,8 @@
 MrTweety Analytic
 =================
 
+image:https://travis-ci.org/kubahorak/mrtweety-analytic.svg?branch=master["Build Status", link="https://travis-ci.org/kubahorak/mrtweety-analytic"]
+
 Analyses tweets in realtime to figure out the most popular hashtags.
 
 Uses https://spark.apache.org[Apache Spark] and a https://github.com/spark-packages/dstream-twitter[Twitter DStream] to
