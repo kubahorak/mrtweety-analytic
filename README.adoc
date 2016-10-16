@@ -1,16 +1,25 @@
 MrTweety Analytic
 =================
 
-Analyses tweets.
+Analyses tweets in realtime to figure out the most popular hashtags.
 
-Build spark module:
-   
+Uses https://spark.apache.org[Apache Spark] and a https://github.com/spark-packages/dstream-twitter[Twitter DStream] to
+retrieve top 5 tweets in a sliding window of 5 minutes. This result is stored in a JSON file and a small JS app is
+producing a small website of this data.
+
+Everything is included into one Docker container together with Nginx. Just run
+
+    ./gradlew buildImage
+
+To use the Spark module alone, build it like so:
+
     ./gradlew :spark:shadowJar
 
-Submit Spark app for execution:
+Optionally you can change the default path of the result JSON file by setting the environment variable
+`RESULT_FILENAME`.
+Finally submit the "fat jar" to your Spark for execution:
 
     spark-submit --class "cz.zee.mrtweety.analytic.spark.Application" --master local[4] build/libs/spark-all.jar 
 
-TODO
 
 (c) 2016 Jakub Horák
