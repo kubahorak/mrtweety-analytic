@@ -5,7 +5,7 @@ jdk:
     - oraclejdk8
 script: 
     - ./gradlew check
-    - ./gradlew buildImage
+    - ./gradlew shadowJar
 
 services:
       - docker
