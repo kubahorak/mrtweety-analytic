@@ -6,26 +6,21 @@ import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.Minutes;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.twitter.TwitterUtils;
+import org.apache.spark.streaming.kafka.KafkaUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
-import twitter4j.Status;
-import twitter4j.auth.Authorization;
-import twitter4j.auth.OAuthAuthorization;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
@@ -56,12 +51,18 @@ public class Application implements Serializable {
         resultFile = new File(resultFilename != null ? resultFilename : "analytic.json");
         LOG.info("Initialized result file at {}", resultFilename);
 
-        Authorization twitterAuth = new OAuthAuthorization(getOauthConfiguration());
+        // get the Kafka stream
+        JavaPairReceiverInputDStream<String, String> messages =
+                // Zookeeper location and Kafka topic
+                KafkaUtils.createStream(streamingContext, "localhost:2181", "mrtweety-analytic", Collections.singletonMap("tweet", 1));
 
-        JavaReceiverInputDStream<Status> statuses = TwitterUtils.createStream(streamingContext, twitterAuth, new String[]{"europe", "eu"});
+        JavaDStream<String> lines = messages.map(Tuple2::_2);
 
-        JavaDStream<String> tweets = statuses.map(Status::getText);
-
+        // parse the tweet texts from JSON
+        JavaDStream<String> tweets = lines.map(line -> {
+            JSONObject jsonObject = new JSONObject(line);
+            return jsonObject.optString("text");
+        });
         JavaDStream<String> words = tweets.flatMap(x -> Arrays.asList(SPACE.split(x)))
                 .filter(word -> word.startsWith("#"));
 
@@ -78,19 +79,6 @@ public class Application implements Serializable {
 
         streamingContext.start();
         streamingContext.awaitTermination();
-    }
-
-    Configuration getOauthConfiguration() {
-        Properties twitterProperties = load("/twitter.properties");
-
-        Configuration twitterAuthConf = new ConfigurationBuilder()
-                .setOAuthConsumerKey(twitterProperties.getProperty("consumerKey"))
-                .setOAuthConsumerSecret(twitterProperties.getProperty("consumerSecret"))
-                .setOAuthAccessToken(twitterProperties.getProperty("accessToken"))
-                .setOAuthAccessTokenSecret(twitterProperties.getProperty("accessTokenSecret"))
-                .build();
-
-        return twitterAuthConf;
     }
 
     /**
@@ -116,20 +104,5 @@ public class Application implements Serializable {
         } catch (IOException e) {
             LOG.error("Could not write result file {}", resultFile, e);
         }
-    }
-
-    /**
-     * Loads properties from the specified resource.
-     * @param resourceName name of the resource
-     * @return populated properties
-     */
-    private Properties load(String resourceName) {
-        Properties properties = new Properties();
-        try {
-            properties.load(getClass().getResourceAsStream(resourceName));
-        } catch (IOException e) {
-            LOG.error("Could not load properties for resource {}", resourceName, e);
-        }
-        return properties;
     }
 }

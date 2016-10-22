@@ -1,5 +1,5 @@
 group 'cz.zee.mrtweety'
-version '0.2-SNAPSHOT'
+version '0.3-SNAPSHOT'
 
 
 subprojects {
