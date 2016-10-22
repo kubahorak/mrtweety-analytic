@@ -15,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import twitter4j.Status;
+import twitter4j.auth.Authorization;
+import twitter4j.auth.OAuthAuthorization;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,25 +45,20 @@ public class Application implements Serializable {
     }
 
     private void start() {
-        SparkConf conf = new SparkConf().setAppName("MrTweety Analytic").setMaster("local[*]");
 
-        Properties twitterProperties = load("/twitter.properties");
+        SparkConf conf = new SparkConf().setAppName("MrTweety Analytic").setMaster("local[*]");
 
         // setup processing with batch interval
         JavaStreamingContext streamingContext = new JavaStreamingContext(conf, Durations.seconds(10));
-
-        // set the connection system properties for Twitter4J
-        System.setProperty("twitter4j.oauth.consumerKey", twitterProperties.getProperty("consumerKey"));
-        System.setProperty("twitter4j.oauth.consumerSecret", twitterProperties.getProperty("consumerSecret"));
-        System.setProperty("twitter4j.oauth.accessToken", twitterProperties.getProperty("accessToken"));
-        System.setProperty("twitter4j.oauth.accessTokenSecret", twitterProperties.getProperty("accessTokenSecret"));
 
         // initialize the result file
         String resultFilename = System.getenv("RESULT_FILENAME");
         resultFile = new File(resultFilename != null ? resultFilename : "analytic.json");
         LOG.info("Initialized result file at {}", resultFilename);
 
-        JavaReceiverInputDStream<Status> statuses = TwitterUtils.createStream(streamingContext);
+        Authorization twitterAuth = new OAuthAuthorization(getOauthConfiguration());
+
+        JavaReceiverInputDStream<Status> statuses = TwitterUtils.createStream(streamingContext, twitterAuth, new String[]{"europe", "eu"});
 
         JavaDStream<String> tweets = statuses.map(Status::getText);
 
@@ -79,6 +78,19 @@ public class Application implements Serializable {
 
         streamingContext.start();
         streamingContext.awaitTermination();
+    }
+
+    Configuration getOauthConfiguration() {
+        Properties twitterProperties = load("/twitter.properties");
+
+        Configuration twitterAuthConf = new ConfigurationBuilder()
+                .setOAuthConsumerKey(twitterProperties.getProperty("consumerKey"))
+                .setOAuthConsumerSecret(twitterProperties.getProperty("consumerSecret"))
+                .setOAuthAccessToken(twitterProperties.getProperty("accessToken"))
+                .setOAuthAccessTokenSecret(twitterProperties.getProperty("accessTokenSecret"))
+                .build();
+
+        return twitterAuthConf;
     }
 
     /**
@@ -102,7 +114,7 @@ public class Application implements Serializable {
         try {
             FileUtils.write(resultFile, rootObject.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Could not write result file {}", resultFile, e);
         }
     }
 
@@ -116,7 +128,7 @@ public class Application implements Serializable {
         try {
             properties.load(getClass().getResourceAsStream(resourceName));
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Could not load properties for resource {}", resourceName, e);
         }
         return properties;
     }
