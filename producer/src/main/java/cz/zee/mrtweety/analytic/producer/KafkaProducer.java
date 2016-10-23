@@ -40,7 +40,7 @@ public class KafkaProducer {
         BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
         StatusesFilterEndpoint streamingEndpoint = new StatusesFilterEndpoint();
-        streamingEndpoint.trackTerms(Arrays.asList("europe", "eu"));
+        streamingEndpoint.trackTerms(Arrays.asList("europe", "europa", "eu"));
 
         Properties twitterProperties = load("/twitter.properties");
         Authentication authentication = new OAuth1(

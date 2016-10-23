@@ -17,3 +17,5 @@ dependencies {
 
     testCompile "junit:junit:$junitVersion"
 }
+
+assemble.dependsOn shadowJar
