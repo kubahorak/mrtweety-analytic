@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -32,7 +33,7 @@ public class KafkaProducer {
         new KafkaProducer().start();
     }
 
-    public void start() {
+    private void start() {
         Properties kafkaProducerProperties = load("/kafka-producer.properties");
         ProducerConfig producerConfig = new ProducerConfig(kafkaProducerProperties);
         Producer<String, String> producer = new Producer<>(producerConfig);
@@ -42,10 +43,10 @@ public class KafkaProducer {
         StatusesFilterEndpoint streamingEndpoint = new StatusesFilterEndpoint();
         streamingEndpoint.trackTerms(Arrays.asList("europe", "europa", "eu"));
 
-        Properties systemProperties = System.getProperties();
+        Map<String, String> envVars = System.getenv();
         Authentication authentication = new OAuth1(
-                systemProperties.getProperty("TWITTER_CONSUMER_KEY"), systemProperties.getProperty("TWITTER_CONSUMER_SECRET"),
-                systemProperties.getProperty("TWITTER_ACCESS_TOKEN"), systemProperties.getProperty("TWITTER_ACCESS_TOKEN_SECRET"));
+                envVars.get("TWITTER_CONSUMER_KEY"), envVars.get("TWITTER_CONSUMER_SECRET"),
+                envVars.get("TWITTER_ACCESS_TOKEN"), envVars.get("TWITTER_ACCESS_TOKEN_SECRET"));
 
         Client client = new ClientBuilder()
                 .authentication(authentication)
