@@ -3,7 +3,7 @@ apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
-mainClassName = "cz.zee.mrtweety.analytic.producer.KafkaProducer"
+mainClassName = "cz.zee.mrtweety.analytic.producer.ProducerApplication"
 
 dependencies {
 

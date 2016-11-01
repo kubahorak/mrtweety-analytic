@@ -7,7 +7,7 @@ apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
-mainClassName = "cz.zee.mrtweety.analytic.spark.Application"
+mainClassName = "cz.zee.mrtweety.analytic.spark.SparkApplication"
 
 dependencies {
 

@@ -3,7 +3,7 @@ MrTweety Analytic
 
 image:https://travis-ci.org/kubahorak/mrtweety-analytic.svg?branch=master["Build Status", link="https://travis-ci.org/kubahorak/mrtweety-analytic"]
 
-Analyses tweets in realtime to figure out the most popular hashtags.
+Analyses tweets in real-time to figure out the most popular hashtags.
 
 Uses https://spark.apache.org[Apache Spark] and a https://github.com/twitter/hbc[Twitter Hosebird Client] to
 retrieve top 5 tweets in a sliding window of 5 minutes. This result is stored in a JSON file and a small JS app is
@@ -23,7 +23,7 @@ Optionally you can change the default path of the result JSON file by setting th
 
 Finally submit the "fat jar" to your Spark for execution:
 
-    spark-submit --class "cz.zee.mrtweety.analytic.spark.Application" --master 'local[4]' build/libs/spark-all.jar 
+    spark-submit --class "cz.zee.mrtweety.analytic.spark.SparkApplication" --master 'local[4]' build/libs/spark-all.jar
 
 Docker
 ------

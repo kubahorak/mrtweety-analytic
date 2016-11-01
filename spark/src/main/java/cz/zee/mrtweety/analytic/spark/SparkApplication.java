@@ -27,16 +27,16 @@ import java.util.regex.Pattern;
  * Spark main application class.
  * @author Jakub Horak
  */
-public class Application implements Serializable {
+public class SparkApplication implements Serializable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SparkApplication.class);
 
     private static final Pattern SPACE = Pattern.compile(" ");
 
     private File resultFile;
 
     public static void main(String[] args) {
-        new Application().start();
+        new SparkApplication().start();
     }
 
     private void start() {

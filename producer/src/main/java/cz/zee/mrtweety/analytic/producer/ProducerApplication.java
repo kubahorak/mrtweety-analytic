@@ -7,9 +7,9 @@ import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +24,18 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Produces Kafka messages from Twitter stream.
  * @author Jakub Horak
  */
-public class KafkaProducer {
+public class ProducerApplication {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaProducer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProducerApplication.class);
     private static final String KAFKA_TOPIC_TWEET = "tweet";
 
     public static void main(String[] args) {
-        new KafkaProducer().start();
+        new ProducerApplication().start();
     }
 
     private void start() {
         Properties kafkaProducerProperties = load("/kafka-producer.properties");
-        ProducerConfig producerConfig = new ProducerConfig(kafkaProducerProperties);
-        Producer<String, String> producer = new Producer<>(producerConfig);
+        Producer<String, String> producer = new KafkaProducer<>(kafkaProducerProperties);
 
         BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
@@ -58,9 +57,9 @@ public class KafkaProducer {
         client.connect();
 
         while (true) {
-            KeyedMessage<String, String> message = null;
+            ProducerRecord<String, String> message;
             try {
-                message = new KeyedMessage<>(KAFKA_TOPIC_TWEET, queue.take());
+                message = new ProducerRecord<>(KAFKA_TOPIC_TWEET, queue.take());
             } catch (InterruptedException e) {
                 LOG.error("Kafka interrupted", e);
                 break;
