@@ -5,7 +5,7 @@ image:https://travis-ci.org/kubahorak/mrtweety-analytic.svg?branch=master["Build
 
 Analyses tweets in realtime to figure out the most popular hashtags.
 
-Uses https://spark.apache.org[Apache Spark] and a https://github.com/spark-packages/dstream-twitter[Twitter DStream] to
+Uses https://spark.apache.org[Apache Spark] and a https://github.com/twitter/hbc[Twitter Hosebird Client] to
 retrieve top 5 tweets in a sliding window of 5 minutes. This result is stored in a JSON file and a small JS app is
 producing a small website of this data.
 

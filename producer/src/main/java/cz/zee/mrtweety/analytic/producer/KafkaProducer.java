@@ -42,10 +42,10 @@ public class KafkaProducer {
         StatusesFilterEndpoint streamingEndpoint = new StatusesFilterEndpoint();
         streamingEndpoint.trackTerms(Arrays.asList("europe", "europa", "eu"));
 
-        Properties twitterProperties = load("/twitter.properties");
+        Properties systemProperties = System.getProperties();
         Authentication authentication = new OAuth1(
-                twitterProperties.getProperty("consumerKey"), twitterProperties.getProperty("consumerSecret"),
-                twitterProperties.getProperty("accessToken"), twitterProperties.getProperty("accessTokenSecret"));
+                systemProperties.getProperty("TWITTER_CONSUMER_KEY"), systemProperties.getProperty("TWITTER_CONSUMER_SECRET"),
+                systemProperties.getProperty("TWITTER_ACCESS_TOKEN"), systemProperties.getProperty("TWITTER_ACCESS_TOKEN_SECRET"));
 
         Client client = new ClientBuilder()
                 .authentication(authentication)
@@ -84,5 +84,6 @@ public class KafkaProducer {
         }
         return properties;
     }
+
 }
 
