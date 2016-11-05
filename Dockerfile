@@ -39,4 +39,5 @@ CMD service nginx start \
     && service zookeeper start \
     && ($KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties &) \
     && (/producer/bin/producer &) \
-    && bin/spark-submit /spark-all.jar
+    && (bin/spark-submit /spark-all.jar &) \
+    && tailf /dev/null
