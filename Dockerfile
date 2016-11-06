@@ -1,4 +1,4 @@
-FROM gettyimages/spark:1.6.2-hadoop-2.6
+FROM gettyimages/spark:2.0.1-hadoop-2.7
 
 # Install Kafka, Zookeeper and other needed things
 ENV SCALA_VERSION 2.10
@@ -22,17 +22,17 @@ EXPOSE 80
 # Copy website
 RUN rm -rf /var/www/html/*
 ADD web /var/www/html
-#
-# Copy Spark app
-COPY spark/build/libs/spark-all.jar /
-COPY spark/src/main/resources/log4j.properties /usr/spark-1.6.2/conf/
 
+# Configure Spark app
 ENV RESULT_FILENAME=/var/www/html/analytic.json
 
 # Copy Kafka producer
 COPY producer/build/distributions/producer.tar /
 RUN tar xf /producer.tar -C /
 
+# Copy Spark app
+COPY spark/build/libs/spark-all.jar /
+COPY spark/src/main/resources/log4j.properties /usr/spark-1.6.2/conf/
 
 # Run everything
 CMD service nginx start \

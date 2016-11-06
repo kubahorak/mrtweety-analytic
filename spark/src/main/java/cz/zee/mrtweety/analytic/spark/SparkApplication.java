@@ -1,14 +1,18 @@
 package cz.zee.mrtweety.analytic.spark;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.Minutes;
 import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaInputDStream;
 import org.apache.spark.streaming.api.java.JavaPairDStream;
-import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.kafka.KafkaUtils;
+import org.apache.spark.streaming.kafka010.ConsumerStrategies;
+import org.apache.spark.streaming.kafka010.KafkaUtils;
+import org.apache.spark.streaming.kafka010.LocationStrategies;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,9 +22,7 @@ import scala.Tuple2;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -51,19 +53,33 @@ public class SparkApplication implements Serializable {
         resultFile = new File(resultFilename != null ? resultFilename : "analytic.json");
         LOG.info("Initialized result file at {}", resultFilename);
 
-        // get the Kafka stream
-        JavaPairReceiverInputDStream<String, String> messages =
-                // Zookeeper location and Kafka topic
-                KafkaUtils.createStream(streamingContext, "localhost:2181", "mrtweety-analytic", Collections.singletonMap("tweet", 1));
+        // Kafka parameters
+        Map<String, Object> kafkaParams = new HashMap<>();
+        kafkaParams.put("bootstrap.servers", "localhost:9092");
+        kafkaParams.put("key.deserializer", StringDeserializer.class);
+        kafkaParams.put("value.deserializer", StringDeserializer.class);
+        kafkaParams.put("group.id", "tweet");
+        kafkaParams.put("auto.offset.reset", "latest");
+        kafkaParams.put("enable.auto.commit", false);
 
-        JavaDStream<String> lines = messages.map(Tuple2::_2);
+        // get the Kafka stream
+        JavaInputDStream<ConsumerRecord<String, String>> messages = KafkaUtils.createDirectStream(
+                streamingContext,
+                LocationStrategies.PreferConsistent(),
+                ConsumerStrategies.Subscribe(
+                        Collections.singletonList("tweet"),
+                        kafkaParams
+                )
+        );
+
+        JavaDStream<String> lines = messages.map(ConsumerRecord::value);
 
         // parse the tweet texts from JSON
         JavaDStream<String> tweets = lines.map(line -> {
             JSONObject jsonObject = new JSONObject(line);
             return jsonObject.optString("text");
         });
-        JavaDStream<String> words = tweets.flatMap(x -> Arrays.asList(SPACE.split(x)))
+        JavaDStream<String> words = tweets.flatMap(x -> Arrays.asList(SPACE.split(x)).iterator())
                 .filter(word -> word.startsWith("#"));
 
         JavaPairDStream<Integer, String> hashtagCounts = words.mapToPair(s -> new Tuple2<>(s, 1))
@@ -71,14 +87,17 @@ public class SparkApplication implements Serializable {
                 .mapToPair(s -> new Tuple2<>(s._2(), s._1()))
                 .transformToPair(v1 -> v1.sortByKey(false));
 
-        hashtagCounts.foreach(pair -> {
+        hashtagCounts.foreachRDD(pair -> {
             List<Tuple2<Integer, String>> topHashtags = pair.take(5);
             save(topHashtags);
-            return null;
         });
 
         streamingContext.start();
-        streamingContext.awaitTermination();
+        try {
+            streamingContext.awaitTermination();
+        } catch (InterruptedException e) {
+            LOG.info("Interrupted while awaiting termination.");
+        }
     }
 
     /**

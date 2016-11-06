@@ -12,7 +12,7 @@ mainClassName = "cz.zee.mrtweety.analytic.spark.SparkApplication"
 dependencies {
 
     compile "org.apache.spark:spark-streaming_2.10:$sparkVersion"
-    compile "org.apache.spark:spark-streaming-kafka_2.10:$sparkVersion"
+    compile "org.apache.spark:spark-streaming-kafka-0-10_2.10:$sparkVersion"
     compile "org.json:json:20160212"
 
     testCompile "junit:junit:$junitVersion"

@@ -12,9 +12,9 @@ producing a small website of this data.
 Standalone Spark app
 --------------------
 
-To build the Spark jar, use:
+To build all the jars, use:
 
-    ./gradlew shadowJar
+    ./gradlew build
 
 Optionally you can change the default path of the result JSON file by setting the environment variable
 `RESULT_FILENAME`.
