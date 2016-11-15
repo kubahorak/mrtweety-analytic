@@ -40,7 +40,7 @@ public class ProducerApplication {
         BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
         StatusesFilterEndpoint streamingEndpoint = new StatusesFilterEndpoint();
-        streamingEndpoint.trackTerms(Arrays.asList("europe", "europa", "eu"));
+        streamingEndpoint.trackTerms(Arrays.asList("europe", "europa", "#eu", "euro"));
 
         Map<String, String> envVars = System.getenv();
         Authentication authentication = new OAuth1(

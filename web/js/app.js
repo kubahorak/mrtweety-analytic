@@ -11,9 +11,15 @@ function exec() {
 
         hashtagList.empty();
 
+        var content = "";
+        for (i = 0; i < items.length; ++i) {
+            var item = items[i];
+            var link = "<a href='https://twitter.com/hashtag/" + item + "'>" + item + "</a>";
+            content += "<li class='list-group-item'>" + link + "</li>";
+        }
+        
         if (items.length) {
-            var content = '<li>' + items.join('</li><li>') + '</li>';
-            var list = $('<ul />').html(content);
+            var list = $('<ul />').addClass('list-group').html(content);
             hashtagList.append(list);
         }
 

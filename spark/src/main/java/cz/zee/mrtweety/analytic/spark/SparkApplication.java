@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Spark main application class.
@@ -33,7 +32,16 @@ public class SparkApplication implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(SparkApplication.class);
 
-    private static final Pattern SPACE = Pattern.compile(" ");
+    private static final Set<String> WORD_BLACKLIST;
+
+    static {
+        Set<String> set = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        set.add("europe");
+        set.add("europa");
+        set.add("eu");
+        set.add("euro");
+        WORD_BLACKLIST = Collections.unmodifiableSet(set);
+    }
 
     private File resultFile;
 
@@ -74,15 +82,29 @@ public class SparkApplication implements Serializable {
 
         JavaDStream<String> lines = messages.map(ConsumerRecord::value);
 
-        // parse the tweet texts from JSON
-        JavaDStream<String> tweets = lines.map(line -> {
-            JSONObject jsonObject = new JSONObject(line);
-            return jsonObject.optString("text");
-        });
-        JavaDStream<String> words = tweets.flatMap(x -> Arrays.asList(SPACE.split(x)).iterator())
-                .filter(word -> word.startsWith("#"));
+        // parse the hashtags from JSON
+        JavaDStream<String> hashtags = lines.flatMap(line -> {
+            JSONObject rootObject = new JSONObject(line);
+            JSONObject entitiesObject = rootObject.optJSONObject("entities");
+            if (entitiesObject != null) {
+                JSONArray tweetHashtagsArray = entitiesObject.getJSONArray("hashtags");
+                Collection<String> list = new LinkedList<>();
+                for (int i = 0; i < tweetHashtagsArray.length(); ++i) {
+                    JSONObject hashtagObject = tweetHashtagsArray.getJSONObject(i);
+                    String hashtag = hashtagObject.getString("text");
 
-        JavaPairDStream<Integer, String> hashtagCounts = words.mapToPair(s -> new Tuple2<>(s, 1))
+                    // remove blacklisted words while ignoring case
+                    if (!WORD_BLACKLIST.contains(hashtag)) {
+                        list.add(hashtag);
+                    }
+                }
+                return list.iterator();
+            } else {
+                return Collections.emptyIterator();
+            }
+        });
+
+        JavaPairDStream<Integer, String> hashtagCounts = hashtags.mapToPair(s -> new Tuple2<>(s, 1))
                 .reduceByKeyAndWindow((i1, i2) -> i1 + i2, Minutes.apply(5))
                 .mapToPair(s -> new Tuple2<>(s._2(), s._1()))
                 .transformToPair(v1 -> v1.sortByKey(false));

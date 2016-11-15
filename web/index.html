@@ -4,22 +4,45 @@
     <head>
         <meta charset="utf-8">
         <title>Top Twitter hashtags - feud.eu</title>
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-        <style>body {margin-top: 80px; background-color: #ccc;}</style>
-        <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+        <style>
+body {
+    margin-top: 80px;
+    background-color: #ccc;
+}
+
+.container-fluid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+        </style>
+
+
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </head>
 
     <body>
-        <div class="container">
-            <div class="hero-unit">
+
+        <div class="container-fluid">
+            <div class="jumbotron">
                 <h1>Top 5 Twitter hashtags about Europe</h1>
                 <h2>in the last 5 minutes</h2>
-                <div id="hashtag-list"/>
             </div>
         </div>
 
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <div class="container-fluid">
+            <div id="hashtag-list"/>
+        </div>
+
+        <div class="container-fluid">
+            <div class="pull-right">
+                Developed by <a href="https://zee.cz">Jakub Horák</a> as an open-source project on <a href="https://github.com/kubahorak/mrtweety-analytic">Github</a>.
+            </div>
+        </div>
+
         <script src="js/app.js"></script>
     </body>
 
