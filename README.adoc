@@ -6,53 +6,79 @@ image:https://travis-ci.org/kubahorak/mrtweety-analytic.svg?branch=master["Build
 Analyses tweets in real-time to figure out the most popular hashtags.
 
 Uses https://spark.apache.org[Apache Spark] and a https://github.com/twitter/hbc[Twitter Hosebird Client] to
-retrieve top 5 tweets in a sliding window of 5 minutes. This result is stored in a JSON file and a small JS app is
-producing a small website of this data.
+retrieve top 5 tweets in a sliding window of 5 minutes. The result is stored in a JSON file and a small JS app is
+utilizing it to update a simple website.
 
-Standalone Spark app
---------------------
+See the site live at http://feud.eu[feud.eu].
+
+== Docker
+
+=== Building
+
+The app is designed to run as a single Docker container.
 
 To build all the jars, use:
 
     ./gradlew build
 
-Optionally you can change the default path of the result JSON file by setting the environment variable
-`RESULT_FILENAME`.
+Then build the Docker image:
+
+    docker build -t mrtweety-analytic .
+
+=== Running
+
+To run the Docker container, use your favourite Docker tool, or simply:
+
+    docker run --name mrtweety-analytic -d \
+        -p 9090:80 \
+        -e TWITTER_CONSUMER_KEY=xxx \
+        -e TWITTER_CONSUMER_SECRET=xxx \
+        -e TWITTER_ACCESS_TOKEN=xxx \
+        -e TWITTER_ACCESS_TOKEN_SECRET=xxx \
+        mrtweety-analytic
+
+Replace `xxx` with appropriate Twitter API keys. Then point your browser to `localhost:9090` and see the result.
+
+The Docker container packages together Kafka producer, Spark app and a website with JS.
+
+== About
+
+=== Kafka producer
+
+Producer uses https://github.com/twitter/hbc[Twitter HBC] to pipe tweets from Twitter's streaming APIs into the
+Kafka messaging system.
+
+Module takes tweets from the Twitter Streaming API and publishes them to the Kafka messaging system.
+
+For the Kafka to run, you first need to start Zookeeper:
+
+    bin/zookeeper-server-start.sh config/zookeeper.properties
+
+then start Kafka itself:
+
+    bin/kafka-server-start.sh config/server.properties
+
+The following command is useful for looking at messages passing through Kafka in console:
+
+    bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic tweet
+
+=== Spark app
+
+A single-node Spark app receiving data from Kafka and processing them real-time. http://spark.apache.org/streaming/[Spark
+Streaming] is used. The processed result is being stored in a JSON file every 10 seconds.
+
+Build a "fat jar" like this:
+
+    ./gradlew shadowJar
+
+Optinoally you can change the default path of the result JSON file by setting the environment variable
+`RESULT_FILENAME`, e.g. like this:
 
     export RESULT_FILENAME=/tmp/analytic.json
 
 Finally submit the "fat jar" to your Spark for execution:
 
-    spark-submit --class "cz.zee.mrtweety.analytic.spark.SparkApplication" --master 'local[4]' build/libs/spark-all.jar
-
-Docker
-------
-
-The Spark app together with a website showing the data and Nginx are packaged together using Docker. Just run:
-
-    docker build -t mrtweety-analytic .
-
-
-Kafka producer
---------------
-
-Module takes tweets from the Twitter Streaming API and publishes them to the Kafka messaging system.
-
-Start Zookeeper:
-
-    bin/zookeeper-server-start.sh config/zookeeper.properties
-
-Start Kafka:
-
-    bin/kafka-server-start.sh config/server.properties
-
-Console output of messages passing through Kafka:
-
-    bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic tweet
-
-Test console producer of Kafka messages:
-
-    bin/kafka-console-producer.sh --broker-list localhost:9092 --topic tweet
+    spark-submit --class "cz.zee.mrtweety.analytic.spark.SparkApplication" --master 'local[4]' spark/build/libs/spark-all.jar
 
 
 (c) 2016 Jakub Horák
