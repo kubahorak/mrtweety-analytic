@@ -105,7 +105,7 @@ public class SparkApplication implements Serializable {
         });
 
         JavaPairDStream<Integer, String> hashtagCounts = hashtags.mapToPair(s -> new Tuple2<>(s, 1))
-                .reduceByKeyAndWindow((i1, i2) -> i1 + i2, Minutes.apply(5))
+                .reduceByKeyAndWindow((i1, i2) -> i1 + i2, Minutes.apply(15))
                 .mapToPair(s -> new Tuple2<>(s._2(), s._1()))
                 .transformToPair(v1 -> v1.sortByKey(false));
 

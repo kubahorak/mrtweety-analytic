@@ -6,7 +6,7 @@ image:https://travis-ci.org/kubahorak/mrtweety-analytic.svg?branch=master["Build
 Analyses tweets in real-time to figure out the most popular hashtags.
 
 Uses https://spark.apache.org[Apache Spark] and a https://github.com/twitter/hbc[Twitter Hosebird Client] to
-retrieve top 5 tweets in a sliding window of 5 minutes. The result is stored in a JSON file and a small JS app is
+retrieve top 5 tweets in a sliding window of 15 minutes. The result is stored in a JSON file and a small JS app is
 utilizing it to update a simple website.
 
 See the site live at http://feud.eu[feud.eu].
