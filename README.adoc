@@ -81,4 +81,4 @@ Finally submit the "fat jar" to your Spark for execution:
     spark-submit --class "cz.zee.mrtweety.analytic.spark.SparkApplication" --master 'local[4]' spark/build/libs/spark-all.jar
 
 
-(C) 2016 Jakub Horák
+(C) 2017 Jakub Horák

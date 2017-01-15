@@ -8,7 +8,7 @@ mainClassName = "cz.zee.mrtweety.analytic.producer.ProducerApplication"
 dependencies {
 
     compile "com.twitter:hbc-core:$hbcVersion"
-    compile "org.apache.kafka:kafka_2.11:$kafkaVersion"
+    compile "org.apache.kafka:kafka_$scalaVersion:$kafkaVersion"
 
     testCompile "junit:junit:$junitVersion"
 }
