@@ -1,8 +1,8 @@
 FROM gettyimages/spark:2.0.2-hadoop-2.7
 
 # Install Kafka, Zookeeper and other needed things
-ENV SCALA_VERSION 2.10
-ENV KAFKA_VERSION 0.10.0.1
+ENV SCALA_VERSION 2.11
+ENV KAFKA_VERSION 0.10.1.1
 ENV KAFKA_HOME /opt/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION"
 
 RUN apt-get update && \
