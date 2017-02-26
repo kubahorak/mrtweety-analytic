@@ -1,4 +1,4 @@
-FROM gettyimages/spark:2.0.2-hadoop-2.7
+FROM gettyimages/spark:2.1.0-hadoop-2.7
 
 # Install Kafka, Zookeeper and other needed things
 ENV SCALA_VERSION 2.11

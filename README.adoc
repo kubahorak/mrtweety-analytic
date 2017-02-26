@@ -71,7 +71,7 @@ Build a "fat jar" like this:
 
     ./gradlew shadowJar
 
-Optinoally you can change the default path of the result JSON file by setting the environment variable
+Optionally you can change the default path of the result JSON file by setting the environment variable
 `RESULT_FILENAME`, e.g. like this:
 
     export RESULT_FILENAME=/tmp/analytic.json
