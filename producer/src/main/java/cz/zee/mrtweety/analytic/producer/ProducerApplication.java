@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
@@ -24,7 +25,10 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Produces Kafka messages from Twitter stream.
  * @author Jakub Horak
  */
-public class ProducerApplication {
+public final class ProducerApplication {
+
+    private ProducerApplication() {
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(ProducerApplication.class);
     private static final String KAFKA_TOPIC_TWEET = "tweet";
@@ -77,8 +81,8 @@ public class ProducerApplication {
      */
     private Properties load(String resourceName) {
         Properties properties = new Properties();
-        try {
-            properties.load(getClass().getResourceAsStream(resourceName));
+        try (InputStream resourceAsStream = getClass().getResourceAsStream(resourceName)) {
+            properties.load(resourceAsStream);
         } catch (IOException e) {
             LOG.error("Could not load properties for resource {}", resourceName, e);
         }

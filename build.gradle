@@ -1,6 +1,11 @@
-group 'cz.zee.mrtweety'
-version '0.6-SNAPSHOT'
+plugins {
+    id "com.bmuschko.docker-remote-api" version "3.0.5"
+}
 
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+
+group 'cz.zee.mrtweety'
+version '0.7-SNAPSHOT'
 
 subprojects {
 
@@ -8,5 +13,53 @@ subprojects {
         mavenCentral()
     }
 
+}
+
+// Creates Dockerfile in the root of the project
+task assemble(type: Dockerfile) {
+    destFile = project.file "Dockerfile"
+    from "gettyimages/spark:$sparkVersion-hadoop-$hadoopVersion"
+    // Install Kafka, Zookeeper and other needed things
+    environmentVariable("SCALA_VERSION", scalaVersion)
+    environmentVariable("KAFKA_VERSION", kafkaVersion)
+    environmentVariable("KAFKA_HOME", "/opt/kafka_\"\$SCALA_VERSION\"-\"\$KAFKA_VERSION\"")
+
+    runCommand "apt-get update && \
+        apt-get install -y zookeeperd wget && \
+        rm -rf /var/lib/apt/lists/* && \
+        apt-get clean && \
+        wget -q http://apache.mirrors.spacedump.net/kafka/\"\$KAFKA_VERSION\"/kafka_\"\$SCALA_VERSION\"-\"\$KAFKA_VERSION\".tgz \
+            -O /tmp/kafka_\"\$SCALA_VERSION\"-\"\$KAFKA_VERSION\".tgz && \
+        tar xfz /tmp/kafka_\"\$SCALA_VERSION\"-\"\$KAFKA_VERSION\".tgz -C /opt && \
+        rm /tmp/kafka_\"\$SCALA_VERSION\"-\"\$KAFKA_VERSION\".tgz"
+
+    // Install nginx
+    runCommand "apt-get update \
+      && apt-get install -y nginx"
+
+    exposePort 80
+
+    // Copy website
+    runCommand "rm -rf /var/www/html/*"
+    addFile("web", "/var/www/html")
+
+    // Configure Spark app
+    environmentVariable("RESULT_FILENAME", "/var/www/html/analytic.json")
+
+    // Copy Kafka producer
+    copyFile("producer/build/distributions/producer.tar", "/")
+    runCommand "tar xf /producer.tar -C /"
+
+    // Copy Spark app
+    copyFile("spark/build/libs/spark-all.jar", "/")
+    copyFile("spark/src/main/resources/log4j.properties", "/usr/spark-$sparkVersion/conf/")
+
+    // Run everything
+    defaultCommand "service nginx start \
+        && service zookeeper start \
+        && (\$KAFKA_HOME/bin/kafka-server-start.sh \$KAFKA_HOME/config/server.properties &) \
+        && (/producer/bin/producer &) \
+        && (bin/spark-submit /spark-all.jar &) \
+        && tailf /dev/null"
 }
 

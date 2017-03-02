@@ -1,4 +1,5 @@
 build
+Dockerfile
 out
 .gradle
 .idea
