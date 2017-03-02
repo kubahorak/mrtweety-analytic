@@ -1,6 +1,8 @@
 package cz.zee.mrtweety.analytic.spark
 
 import java.io.{File, IOException}
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 import org.apache.commons.io.FileUtils
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -116,6 +118,8 @@ object SparkApplication {
       stat.put("count", pair._1)
       items.put(stat)
     }
+
+    rootObject.put("datetime", OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME))
 
     try {
       FileUtils.write(resultFile, rootObject.toString())
