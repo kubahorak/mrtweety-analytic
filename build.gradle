@@ -55,11 +55,11 @@ task assemble(type: Dockerfile) {
     copyFile("spark/src/main/resources/log4j.properties", "/usr/spark-$sparkVersion/conf/")
 
     // Run everything
-    defaultCommand "service nginx start \
+    defaultCommand("/bin/sh", "-c", "service nginx start \
         && service zookeeper start \
         && (\$KAFKA_HOME/bin/kafka-server-start.sh \$KAFKA_HOME/config/server.properties &) \
         && (/producer/bin/producer &) \
         && (bin/spark-submit /spark-all.jar &) \
-        && tailf /dev/null"
+        && tailf /dev/null")
 }
 
