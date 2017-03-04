@@ -12,4 +12,4 @@ COPY producer/build/distributions/producer.tar /
 RUN tar xf /producer.tar -C /
 COPY spark/build/libs/spark-all.jar /
 COPY spark/src/main/resources/log4j.properties /usr/spark-2.1.0/conf/
-CMD ["service nginx start         && service zookeeper start         && ($KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties &)         && (/producer/bin/producer &)         && (bin/spark-submit /spark-all.jar &)         && tailf /dev/null"]
+CMD ["/bin/sh", "-c", "service nginx start         && service zookeeper start         && ($KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties &)         && (/producer/bin/producer &)         && (bin/spark-submit /spark-all.jar &)         && tailf /dev/null"]

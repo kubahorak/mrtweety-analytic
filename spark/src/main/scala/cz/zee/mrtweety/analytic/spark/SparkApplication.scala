@@ -69,7 +69,7 @@ object SparkApplication {
       if (entitiesObject != null) {
         val tweetHashtagsArray = entitiesObject.getJSONArray("hashtags")
         var list = ListBuffer[String]()
-        for (i <- 0 to tweetHashtagsArray.length()) {
+        for (i <- 0 until tweetHashtagsArray.length()) {
           val hashtagObject = tweetHashtagsArray.getJSONObject(i)
           val hashtag = hashtagObject.getString("text")
 

@@ -17,7 +17,7 @@ See the site live at http://feud.eu[feud.eu].
 
 The app is designed to run as a single Docker container.
 
-To build all the jars, use:
+To build all the jars and generate the Dockerfile, use:
 
     ./gradlew build
 

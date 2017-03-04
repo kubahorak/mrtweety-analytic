@@ -63,3 +63,5 @@ task assemble(type: Dockerfile) {
         && tailf /dev/null")
 }
 
+// Perform the assemble also from build task
+task build(dependsOn: assemble)
