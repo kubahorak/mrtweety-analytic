@@ -74,7 +74,7 @@ object SparkApplication {
           val hashtag = hashtagObject.getString("text")
 
           // remove blacklisted words while ignoring case
-          if (!WORD_BLACKLIST.contains(hashtag)) {
+          if (!WORD_BLACKLIST.contains(hashtag.toLowerCase)) {
             list += hashtag
           }
         }
