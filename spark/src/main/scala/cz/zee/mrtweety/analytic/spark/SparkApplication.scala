@@ -60,37 +60,37 @@ object SparkApplication {
       Subscribe[String, String](topics, kafkaParams)
     )
 
-    val lines = stream.map(record => record.value)
+    val jsons = stream.map(record => record.value)
 
-    // parse the hashtags from JSON
-    val hashtags: DStream[String] = lines.flatMap(line => {
+    // parse the hashtags from JSONs
+    val hashtags: DStream[Hashtag] = jsons.flatMap(line => {
       val rootObject = new JSONObject(line)
       val entitiesObject = rootObject.optJSONObject("entities")
       if (entitiesObject != null) {
         val tweetHashtagsArray = entitiesObject.getJSONArray("hashtags")
-        var list = ListBuffer[String]()
+        var list = ListBuffer[Hashtag]()
         for (i <- 0 until tweetHashtagsArray.length()) {
           val hashtagObject = tweetHashtagsArray.getJSONObject(i)
-          val hashtag = hashtagObject.getString("text")
+          val hashtagText = hashtagObject.getString("text")
 
           // remove blacklisted words while ignoring case
-          if (!WORD_BLACKLIST.contains(hashtag.toLowerCase)) {
-            list += hashtag
+          if (!WORD_BLACKLIST.contains(hashtagText.toLowerCase)) {
+            list += new Hashtag(hashtagText)
           }
         }
         list
       } else {
-        List[String]()
+        List[Hashtag]()
       }
     })
 
     val hashtagCounts = hashtags.map(s => (s, 1))
       .reduceByKeyAndWindow((i1, i2) => i1 + i2, Minutes.apply(15))
-      .map(s => (s._2, s._1))
+      .map(s => (s._2, s._1.text))
       .transform(v1 => v1.sortByKey(ascending = false))
 
     hashtagCounts.foreachRDD(pair => {
-      val topHashtags: Array[(Int, String)] = pair.take(5)
+      val topHashtags: Array[(Int, String)] = pair.take(100)
       save(topHashtags)
     })
 
