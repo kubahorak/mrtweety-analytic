@@ -90,7 +90,7 @@ object SparkApplication {
       .transform(v1 => v1.sortByKey(ascending = false))
 
     hashtagCounts.foreachRDD(pair => {
-      val topHashtags: Array[(Int, String)] = pair.take(100)
+      val topHashtags: Array[(Int, String)] = pair.take(5)
       save(topHashtags)
     })
 
