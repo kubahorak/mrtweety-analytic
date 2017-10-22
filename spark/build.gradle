@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "1.2.3"
+    id "com.github.johnrengelman.shadow" version "2.0.1"
 }
 
 apply plugin: 'scala'
@@ -16,6 +16,10 @@ dependencies {
     compile "org.json:json:$jsonVersion"
 
     testCompile "junit:junit:$junitVersion"
+}
+
+shadowJar {
+    zip64 true
 }
 
 assemble.dependsOn shadowJar

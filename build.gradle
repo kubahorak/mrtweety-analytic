@@ -1,11 +1,11 @@
 plugins {
-    id "com.bmuschko.docker-remote-api" version "3.0.5"
+    id "com.bmuschko.docker-remote-api" version "3.2.0"
 }
 
 import com.bmuschko.gradle.docker.tasks.image.Dockerfile
 
 group 'cz.zee.mrtweety'
-version '0.7-SNAPSHOT'
+version '0.8-SNAPSHOT'
 
 subprojects {
 
